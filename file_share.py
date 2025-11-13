@@ -7,18 +7,6 @@ import png
 from pyngrok import ngrok
 import subprocess
 
-def get_user_choice():
-    while True:
-        choice = input("Remote access? Enter y/n: ").lower()
-
-        if choice == 'y' or choice == 'yes':
-            return True
-        elif choice == 'n' or choice == 'no':
-            return False
-        else:
-            print("Invalid Input.")
-            continue
-
 def get_local_ip():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -87,65 +75,40 @@ def get_directory():
         print("Exiting...")
         sys.exit()
 
-def start_server(use_ngrok, path, port, ip):
+def generate_qr_code(ip, port):
+    home_dir = os.path.expanduser("~")
+    desktop = os.path.join(home_dir, "Desktop")
+    os.chdir(desktop)
+    url = "http://" + str(ip) + ":" + str(port)
+    qr = pyqrcode.create(url)
+    qr.png("server_qr.png", scale=8)
+    print("QR code saved as server_qr.png")
+
+def start_server(path, port, ip):
+        os.chdir(path)
+        server_process = subprocess.Popen(['python', '-m', 'http.server', str(port)])
+        url_computer = ngrok.connect(port)
         
-    if use_ngrok == True:
-        url = ngrok.connect(port)
-        public_url = url.public_url
-        home_dir = os.path.expanduser("~")
-        desktop = os.path.join(home_dir, "Desktop")
-        os.chdir(desktop)
-        qr = pyqrcode.create(public_url)
-        qr.png("server_qr.png", scale=8)
-        print("QR code saved as server_qr.png")
-        os.chdir(path)
-        server_process = subprocess.Popen(['python', '-m', 'http.server', str(port)])
-        print(f"COMPUTER: Files now being served from: {url}")
+        print(f"COMPUTER: Files now being served from: {url_computer}")
         print("MOBILE: Scan the QR code on your desktop to access via phone.")
-    else:
-        home_dir = os.path.expanduser("~")
-        desktop = os.path.join(home_dir, "Desktop")
-        os.chdir(desktop)
-        url_computer = "http://localhost:" + str(port)
-        url_mobile = "http://" + str(ip) + ":" + str(port)
-        qr = pyqrcode.create(url_mobile)
-        qr.png("server_qr.png", scale=8)
-        print("QR code saved as server_qr.png")
-        os.chdir(path)
-        server_process = subprocess.Popen(['python', '-m', 'http.server', str(port)])
-        print(f"COMPUTER: Files now being served from {url_computer}")
-        print(f"MOBILE: Scan the QR code on your desktop to access via phone.")
-
-    try:
-        print("Press Ctrl+C to stop the server...")
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print('Exiting...')
-        print(f"Killing process: {server_process.pid}")
-        server_process.kill()
-        print("Process killed.")
-        server_process.wait()
-        ngrok.disconnect(url_computer)
-        print("Ngrok tunnel closed.")
-
+        try:
+            print("Press Ctrl+C to stop the server...")
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print('Exiting...')
+            print(f"Killing process: {server_process.pid}")
+            server_process.kill()
+            print("Process killed.")
+            server_process.wait()
+            print("Ngrok tunnel closed.")
 
 def main():
-    
-    use_ngrok = get_user_choice()
     ip = get_local_ip()
-
-    if use_ngrok == True:
-        path = get_directory()
-        port = get_port()
-        start_server(use_ngrok, path, port, ip)
-
-    else:
-        ip = get_local_ip()
-        path = get_directory()
-        port = get_port()
-        start_server(use_ngrok, path, port, ip)
-
+    path = get_directory()
+    port = get_port()
+    generate_qr_code(ip, port)
+    start_server(path, port, ip)
 
 welcome = "FILE SHARING APPLICATION"
 length = len(welcome)
