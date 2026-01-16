@@ -1,45 +1,63 @@
-# File Sharing Application
+# File Sharing App
 
-A fast, lightweight tool for anyone to access their computer files from a phone (no account signup or cloud needed!)
+Lightweight tool to access computer files from a phone without cloud services or account signup.
 
-# Features
+## What it does
 
-* Choose between local network access (speed/privacy) or remote access (anywhere)
-* Serves files from HTTP Server on a user-defined port
-* Uses an Ngrok forwarding URL for remote access
-* Generates QR Code for mobile device access 
+- Serves files from any directory via HTTP server on a user-defined port
+- Supports local network access (fast, private) or remote access via Ngrok tunnel (anywhere)
+- Generates QR code for instant mobile device access
+- No account creation or cloud storage required
 
-# Requirements
+## How it works
 
-- Python 3.13.7
+**Four-step flow:**
 
-# Installation
+1. **Configure**: Specify the directory path and port number
+2. **Choose Access Mode**: Local network (faster) or Ngrok tunnel (remote access from anywhere)
+3. **Server Starts**: HTTP server begins serving files from the specified directory
+4. **Connect**: Scan the QR code saved to your desktop or paste the URL into any browser
+
+## Tech Stack
+
+- Python 3.13
+- http.server (built-in Python HTTP server)
+- pyngrok (Ngrok tunnel for remote access)
+- pyqrcode (QR code generation)
+
+## Installation
 
 1. Clone the repository
-2. Install dependencies: "python3 -m pip install pyqrcode pypng pyngrok"
+   ```bash
+   git clone https://github.com/olivershackley1999/file-sharing-app.git
+   cd file-sharing-app
+   ```
 
-# Usage
+2. Install dependencies
+   ```bash
+   pip install pyqrcode pypng pyngrok
+   ```
 
-1. Run the script: python3 file_share.py
-2. Follow the prompts:
-   - Enter the path you want to access files from.
-   - Enter a port number (between 1023 and 65535).
-   - Copy/paste the ngrok URL into your browser (immediately after "Ngrok Tunnel:") OR
-   - Scan the QR Code saved to your desktop from your phone.
-3. Access files from anywhere!
+3. Run the script
+   ```bash
+   python file_share.py
+   ```
 
-# How It Works
+4. Follow the prompts to configure directory, port, and access mode
 
-When you run the script, it gives you the option of accessing your files locally or remotely.
+## Usage
 
-If localhost, it grabs the user's local IP Address, asks for the path, port number, and starts the HTTP Server on the selected port. 
+```
+FILE SHARING APPLICATION
+------------------------
+Directory Path: /Users/me/Documents
+Port Number: 8080
 
-If Ngrok, Ngrok creates a tunnel from the user's port to a forwarding URL served from Ngrok's cloud, enabling remote access from anywhere (albeit with a speed and security tradeoff).
+COMPUTER: Files now being served from: https://abc123.ngrok.io
+MOBILE: Scan the QR code on your desktop to access via phone.
+Press Ctrl+C to stop the server...
+```
 
-In either case, a QR Code is generated containing either the local network URL or the ngrok URL and is saved to the user's desktop for quick access.
+## Project Motivation
 
-The full flow:
-
-Specify path --> enter port --> choose Ngrok URL or localhost access --> HTTP Server starts --> QR Code saved to desktop --> paste URL into browser / scan QR Code on mobile --> files served! 
-
-
+Built as a quick way to transfer files between devices without relying on cloud services, email attachments, or third-party apps.
